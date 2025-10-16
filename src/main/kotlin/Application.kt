@@ -1,10 +1,10 @@
 package com.example
 
-import freemarker.cache.ClassTemplateLoader
+import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
-import io.ktor.server.freemarker.*
 import io.ktor.server.netty.*
+import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.request.*
 
 fun main() {
@@ -14,8 +14,8 @@ fun main() {
 }
 
 fun Application.module() {
-    install(FreeMarker) {
-        templateLoader = ClassTemplateLoader(this::class.java.classLoader, "templates")
+    install(ContentNegotiation) {
+        json()
     }
     intercept(ApplicationCallPipeline.Setup) {
         println("Received request: ${call.request.uri}")

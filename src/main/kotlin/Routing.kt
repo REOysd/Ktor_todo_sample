@@ -7,7 +7,8 @@ import io.ktor.server.routing.*
 fun Application.configureRouting() {
     routing {
         get("/") {
-            call.respondText("みんなや！")
+            val response = mapOf("message" to "Hello, API!")
+            call.respond(response)
         }
         get("/greet") {
             val name = call.request.queryParameters["name"] ?: "Guest"
