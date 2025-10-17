@@ -1,11 +1,13 @@
 package com.example.data
 
-import com.example.data.tables.Todo
-import com.example.data.tables.User
+import com.example.data.tables.TodoTable
+import com.example.data.tables.UserTable
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
+import kotlinx.coroutines.Dispatchers
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
+import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
 
 fun initDatabase() {
@@ -20,6 +22,9 @@ fun initDatabase() {
     Database.connect(dataSource)
 
     transaction {
-        SchemaUtils.create(User, Todo)
+        SchemaUtils.create(UserTable, TodoTable)
     }
 }
+
+suspend fun <T> dbQuery(block: suspend () -> T): T =
+    newSuspendedTransaction(Dispatchers.IO) { block() }
