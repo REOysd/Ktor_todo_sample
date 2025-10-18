@@ -32,7 +32,7 @@ object JWTConfig {
 
     fun generateRefreshToken(userId: Int): String {
         val now = Date()
-        val expiresAt = Date(now.time + EnvironmentConfig.accessTokenValidity)
+        val expiresAt = Date(now.time + EnvironmentConfig.refreshTokenValidity)
 
         return JWT.create()
             .withIssuer(EnvironmentConfig.jwtIssuer)
@@ -44,6 +44,5 @@ object JWTConfig {
             .withExpiresAt(expiresAt)
             .withJWTId(UUID.randomUUID().toString())
             .sign(algorithm)
-
     }
 }

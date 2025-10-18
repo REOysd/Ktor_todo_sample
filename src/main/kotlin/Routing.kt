@@ -20,6 +20,10 @@ fun Application.configureRouting() {
 
     routing {
         todoRoutes(todoService)
+        authRoutes(userService)
+        get("/health") {
+            call.respond(mapOf("status" to "ok"))
+        }
     }
 }
 

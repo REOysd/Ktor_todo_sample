@@ -1,6 +1,7 @@
 package com.example.data
 
 import com.example.data.tables.TodoTable
+import com.example.data.tables.UserTable
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import kotlinx.coroutines.Dispatchers
@@ -22,6 +23,7 @@ fun initDatabase() {
 
     transaction {
         SchemaUtils.create(TodoTable)
+        SchemaUtils.create(UserTable)
     }
 }
 

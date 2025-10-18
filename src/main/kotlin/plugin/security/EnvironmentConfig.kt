@@ -1,21 +1,30 @@
 package com.example.plugin.security
 
+import io.github.cdimascio.dotenv.dotenv
+
 object EnvironmentConfig {
-    val jwtSecret: String = System.getenv("JWT_SECRET")
-        ?: throw IllegalStateException("JWT_SECRET環境変数が設定されていません")
-    val jwtIssuer: String = System.getenv("JWT_ISSUER")
+    private val dotenv = dotenv {
+        ignoreIfMissing = true
+    }
+
+    val jwtSecret: String = dotenv["JWT_SECRET"]
+        ?: "your-super-secret-key-change-this-in-production-min-32-chars"
+
+    val jwtIssuer: String = dotenv["JWT_ISSUER"]
         ?: "todo-app"
-    val jwtAudience: String = System.getenv("JWT_AUDIENCE")
-        ?: "todo-app-audience"
-    val jwtRealm: String = System.getenv("JWT_REALM")
-        ?: "todo-app-realm"
 
-    val accessTokenValidity: Long = System.getenv("ACCESS_TOKEN_VALIDITY_MS")?.toLongOrNull()
-        ?: 36_000_00L
-    val refreshTokenValidity: Long = System.getenv("REFRESH_TOKEN_VALIDITY_MS")?.toLongOrNull()
-        ?: 86_400_000L
+    val jwtAudience: String = dotenv["JWT_AUDIENCE"]
+        ?: "todo-app-users"
 
-    val allowedHosts: List<String> = System.getenv("ALLOWED_HOSTS")?.split(",")
-        ?: listOf("http://localhost:3000")
+    val jwtRealm: String = dotenv["JWT_REALM"]
+        ?: "todo-app"
 
+    val accessTokenValidity: Long = dotenv["ACCESS_TOKEN_VALIDITY_MS"]?.toLongOrNull()
+        ?: 3600000L // 1 hour
+
+    val refreshTokenValidity: Long = dotenv["REFRESH_TOKEN_VALIDITY_MS"]?.toLongOrNull()
+        ?: 604800000L // 7 days
+
+    val allowedHosts: List<String> = dotenv["ALLOWED_HOSTS"]?.split(",")
+        ?: listOf("http://localhost:3000", "http://localhost:8080")
 }

@@ -1,12 +1,18 @@
 package com.example
 
 import com.example.data.initDatabase
+import com.example.plugin.security.EnvironmentConfig
+import com.example.plugin.security.JWTConfig
+import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
+import io.ktor.server.auth.*
+import io.ktor.server.auth.jwt.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.request.*
+import io.ktor.server.response.*
 import kotlinx.serialization.json.Json
 import org.h2.tools.Server
 import org.koin.ktor.plugin.Koin
@@ -26,6 +32,7 @@ fun Application.module() {
     configureDependencyInjection()
     configureSerialization()
     configureDatabases()
+    configureJwt()
     configureRouting()
 }
 
@@ -54,5 +61,38 @@ fun Application.configureSerialization() {
             isLenient = true
             ignoreUnknownKeys = true
         })
+    }
+}
+
+fun Application.configureJwt() {
+    install(Authentication) {
+        jwt("auth-jwt") {
+            realm = EnvironmentConfig.jwtRealm
+            verifier(JWTConfig.verifier)
+
+            validate { credential ->
+                val tokenType = credential.payload.getClaim("type")?.asString()
+                if (tokenType != "access") {
+                    return@validate null
+                }
+
+                val userId = credential.payload.getClaim("userId")?.asInt()
+                val userName = credential.payload.getClaim("userName")?.asString()
+
+                if (userId != null && userName != null) {
+                    JWTPrincipal(credential.payload)
+                } else {
+                    null
+                }
+            }
+
+            challenge { _, _ ->
+                call.respondText(
+                    text = """{"error":"トークンが無効または期限切れです"}""",
+                    status = HttpStatusCode.Unauthorized,
+                    contentType = ContentType.Application.Json
+                )
+            }
+        }
     }
 }
