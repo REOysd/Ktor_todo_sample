@@ -8,6 +8,7 @@ import io.ktor.server.netty.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.request.*
 import kotlinx.serialization.json.Json
+import org.h2.tools.Server
 import org.koin.ktor.plugin.Koin
 import org.koin.logger.slf4jLogger
 
@@ -37,6 +38,13 @@ fun Application.configureDependencyInjection() {
 
 fun Application.configureDatabases() {
     initDatabase()
+
+    val h2Server = Server.createWebServer("-webPort", "8082", "-webAllowOthers")
+    h2Server.start()
+
+    environment.monitor.subscribe(ApplicationStopped) {
+        h2Server.stop()
+    }
 }
 
 fun Application.configureSerialization() {
