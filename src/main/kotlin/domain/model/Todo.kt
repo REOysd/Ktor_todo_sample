@@ -7,6 +7,7 @@ import org.jetbrains.exposed.sql.ResultRow
 @Serializable
 data class Todo(
     val id: Int,
+    val userId: Int,
     val title: String,
     val description: String?,
 ) {
@@ -14,6 +15,7 @@ data class Todo(
         fun fromRow(row: ResultRow): Todo {
             return Todo(
                 id = row[TodoTable.id],
+                userId = row[TodoTable.userId],
                 title = row[TodoTable.title],
                 description = row[TodoTable.description]
             )

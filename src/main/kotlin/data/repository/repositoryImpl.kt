@@ -9,12 +9,13 @@ import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 
 class RepositoryImpl: TodoRepository {
-    override suspend fun findAll(): List<Todo> = dbQuery {
-        TodoTable.selectAll().map { Todo.fromRow(it) }
+    override suspend fun findAllByUserId(userId: Int): List<Todo> = dbQuery {
+        TodoTable.select { TodoTable.userId eq userId }.map { Todo.fromRow(it) }
     }
 
-    override suspend fun createTodo(request: CreateTodoRequest): Todo = dbQuery {
+    override suspend fun createTodo(userId: Int, request: CreateTodoRequest): Todo = dbQuery {
         val insertStatement = TodoTable.insert {
+            it[TodoTable.userId] = userId
             it[title] = request.title
             it[description] = request.description
         }
@@ -22,7 +23,9 @@ class RepositoryImpl: TodoRepository {
             ?: throw Exception("Failed to create todo")
     }
 
-    override suspend fun delete(id: Int): Boolean = dbQuery {
-        TodoTable.deleteWhere { TodoTable.id eq id } > 0
+    override suspend fun delete(userId: Int, id: Int): Boolean = dbQuery {
+        TodoTable.deleteWhere {
+            (TodoTable.id eq id) and (TodoTable.userId eq userId)
+        } > 0
     }
 }

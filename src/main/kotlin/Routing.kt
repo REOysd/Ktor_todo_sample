@@ -10,6 +10,7 @@ import com.example.plugin.security.JWTConfig
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
+import io.ktor.server.auth.jwt.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -32,67 +33,89 @@ fun Route.todoRoutes(todoService: TodoService) {
     authenticate("auth-jwt") {
         route("/todos") {
             get {
-            try {
-                val todos = todoService.getAllTodo()
-                call.respond(HttpStatusCode.OK, todos)
-            } catch (e: Exception) {
-                call.respond(
-                    HttpStatusCode.InternalServerError,
-                    mapOf("error" to (e.message ?: "Unknown error"))
-                )
-            }
-        }
+                try {
+                    val principal = call.principal<JWTPrincipal>()
+                    val userId = principal?.payload?.getClaim("userId")?.asInt()
+                        ?: return@get call.respond(
+                            HttpStatusCode.Unauthorized,
+                            mapOf("error" to "認証が必要です")
+                        )
 
-        post {
-            try {
-                val request = call.receive<CreateTodoRequest>()
-                val todo = todoService.createTodo(request)
-                call.respond(HttpStatusCode.Created, todo)
-            } catch (e: IllegalArgumentException) {
-                call.respond(
-                    HttpStatusCode.BadRequest,
-                    mapOf("error" to e.message)
-                )
-            } catch (e: Exception) {
-                call.respond(
-                    HttpStatusCode.InternalServerError,
-                    mapOf("error" to "Failed to create todo: ${e.message}")
-                )
-            }
-        }
-
-        delete("/{id}") {
-            val id = call.parameters["id"]?.toIntOrNull()
-                ?: return@delete call.respond(
-                    HttpStatusCode.BadRequest,
-                    mapOf("error" to "Invalid ID")
-                )
-
-            try {
-                val deleted = todoService.deleteTodo(id)
-
-                if (deleted) {
-                    call.respond(HttpStatusCode.OK,
-                        mapOf("message" to "Todo deleted successfully")
-                    )
-                } else {
+                    val todos = todoService.getAllTodo(userId)
+                    call.respond(HttpStatusCode.OK, todos)
+                } catch (e: Exception) {
                     call.respond(
-                        HttpStatusCode.NotFound,
-                        mapOf("error" to "Todo not found")
+                        HttpStatusCode.InternalServerError,
+                        mapOf("error" to (e.message ?: "Unknown error"))
                     )
                 }
-            } catch (e: IllegalArgumentException) {
-                call.respond(
-                    HttpStatusCode.BadRequest,
-                    mapOf("error" to e.message)
-                )
-            } catch (e: Exception) {
-                call.respond(
-                    HttpStatusCode.InternalServerError,
-                    mapOf("error" to (e.message ?: "Unknown error"))
-                )
             }
-        }
+
+            post {
+                try {
+                    val principal = call.principal<JWTPrincipal>()
+                    val userId = principal?.payload?.getClaim("userId")?.asInt()
+                        ?: return@post call.respond(
+                            HttpStatusCode.Unauthorized,
+                            mapOf("error" to "認証が必要です")
+                        )
+
+                    val request = call.receive<CreateTodoRequest>()
+                    val todo = todoService.createTodo(userId, request)
+                    call.respond(HttpStatusCode.Created, todo)
+                } catch (e: IllegalArgumentException) {
+                    call.respond(
+                        HttpStatusCode.BadRequest,
+                        mapOf("error" to e.message)
+                    )
+                } catch (e: Exception) {
+                    call.respond(
+                        HttpStatusCode.InternalServerError,
+                        mapOf("error" to "Failed to create todo: ${e.message}")
+                    )
+                }
+            }
+
+            delete("/{id}") {
+                try {
+                    val principal = call.principal<JWTPrincipal>()
+                    val userId = principal?.payload?.getClaim("userId")?.asInt()
+                        ?: return@delete call.respond(
+                            HttpStatusCode.Unauthorized,
+                            mapOf("error" to "認証が必要です")
+                        )
+
+                    val id = call.parameters["id"]?.toIntOrNull()
+                        ?: return@delete call.respond(
+                            HttpStatusCode.BadRequest,
+                            mapOf("error" to "Invalid ID")
+                        )
+
+                    val deleted = todoService.deleteTodo(userId, id)
+
+                    if (deleted) {
+                        call.respond(
+                            HttpStatusCode.OK,
+                            mapOf("message" to "Todo deleted successfully")
+                        )
+                    } else {
+                        call.respond(
+                            HttpStatusCode.NotFound,
+                            mapOf("error" to "Todo not found")
+                        )
+                    }
+                } catch (e: IllegalArgumentException) {
+                    call.respond(
+                        HttpStatusCode.BadRequest,
+                        mapOf("error" to e.message)
+                    )
+                } catch (e: Exception) {
+                    call.respond(
+                        HttpStatusCode.InternalServerError,
+                        mapOf("error" to (e.message ?: "Unknown error"))
+                    )
+                }
+            }
         }
     }
 }
