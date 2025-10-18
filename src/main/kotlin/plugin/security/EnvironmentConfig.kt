@@ -1,4 +1,4 @@
-package com.example.plugin
+package com.example.plugin.security
 
 object EnvironmentConfig {
     val jwtSecret: String = System.getenv("JWT_SECRET")

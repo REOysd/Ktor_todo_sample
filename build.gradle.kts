@@ -44,6 +44,7 @@ dependencies {
     implementation("io.insert-koin:koin-ktor:3.5.3")
     implementation("io.insert-koin:koin-logger-slf4j:3.5.3")
     implementation("at.favre.lib:bcrypt:0.10.2")
+    implementation("io.github.cdimascio:dotenv-kotlin:6.4.1")
     testImplementation("io.ktor:ktor-server-test-host-jvm")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
 }
