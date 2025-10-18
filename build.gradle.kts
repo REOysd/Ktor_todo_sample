@@ -28,6 +28,8 @@ dependencies {
     implementation("io.ktor:ktor-server-freemarker:2.3.7")
     implementation("io.ktor:ktor-server-content-negotiation:2.3.7")
     implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.7")
+    implementation("io.ktor:ktor-server-auth:2.3.7")
+    implementation("io.ktor:ktor-server-auth-jwt:2.3.7")
     implementation("com.h2database:h2:2.2.224")
     implementation("com.zaxxer:HikariCP:5.0.1")
     implementation("org.jetbrains.exposed:exposed-core:0.44.1")
@@ -41,6 +43,7 @@ dependencies {
     implementation("io.ktor:ktor-server-config-yaml")
     implementation("io.insert-koin:koin-ktor:3.5.3")
     implementation("io.insert-koin:koin-logger-slf4j:3.5.3")
+    implementation("at.favre.lib:bcrypt:0.10.2")
     testImplementation("io.ktor:ktor-server-test-host-jvm")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
 }
