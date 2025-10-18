@@ -8,7 +8,6 @@ import io.ktor.server.netty.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.request.*
 import kotlinx.serialization.json.Json
-import org.h2.engine.Database
 import org.koin.ktor.plugin.Koin
 import org.koin.logger.slf4jLogger
 
