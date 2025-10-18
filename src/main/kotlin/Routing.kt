@@ -9,6 +9,7 @@ import com.example.domain.model.UserRegistration
 import com.example.plugin.security.JWTConfig
 import io.ktor.http.*
 import io.ktor.server.application.*
+import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -28,9 +29,9 @@ fun Application.configureRouting() {
 }
 
 fun Route.todoRoutes(todoService: TodoService) {
-
-    route("/todos") {
-        get {
+    authenticate("auth-jwt") {
+        route("/todos") {
+            get {
             try {
                 val todos = todoService.getAllTodo()
                 call.respond(HttpStatusCode.OK, todos)
@@ -91,6 +92,7 @@ fun Route.todoRoutes(todoService: TodoService) {
                     mapOf("error" to (e.message ?: "Unknown error"))
                 )
             }
+        }
         }
     }
 }
