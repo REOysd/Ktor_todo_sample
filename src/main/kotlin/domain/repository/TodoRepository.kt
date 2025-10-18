@@ -5,6 +5,6 @@ import com.example.domain.model.Todo
 
 interface TodoRepository {
     suspend fun findAll(): List<Todo>
-    suspend fun createTodo(userId: Int, request: CreateTodoRequest): Todo
+    suspend fun createTodo(request: CreateTodoRequest): Todo
     suspend fun delete(id: Int): Boolean
 }

@@ -13,9 +13,8 @@ class RepositoryImpl: TodoRepository {
         TodoTable.selectAll().map { Todo.fromRow(it) }
     }
 
-    override suspend fun createTodo(userId: Int, request: CreateTodoRequest): Todo = dbQuery {
+    override suspend fun createTodo(request: CreateTodoRequest): Todo = dbQuery {
         val insertStatement = TodoTable.insert {
-            it[TodoTable.userId] = userId
             it[title] = request.title
             it[description] = request.description
         }

@@ -6,7 +6,6 @@ import java.time.LocalDateTime
 
 object TodoTable: Table("todos") {
     val id = integer("id").autoIncrement()
-    val userId = integer("user_id").references(UserTable.id)
     val title = varchar("title", 255)
     val description = text("description").nullable()
     val createdAt = datetime("created_at").clientDefault { LocalDateTime.now() }
